@@ -35,4 +35,13 @@ public class inputReader : MonoBehaviour
         isJumpKeyPressed = jumpAction.IsPressed();
         isDashKeyPressed = dashAction.IsPressed();
     }
+
+    void OnDisable()
+    {
+        moveVector = Vector2.zero;
+        lookVector = Vector2.zero;
+        zoomVector = Vector2.zero;
+        isJumpKeyPressed = false;
+        isDashKeyPressed = false; 
+    }
 }

@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-
 public class playerController : MonoBehaviour
 {
     [SerializeField] private inputReader inputReader;
@@ -8,33 +7,40 @@ public class playerController : MonoBehaviour
     [SerializeField] private CharacterController characterController;
     [SerializeField] private playerAnimationController animController;
     [SerializeField] private cutsceneManager cutsceneManager;
+    [SerializeField] private UI ui;
 
-    [SerializeField] private bool canJump = true;
+    [SerializeField] public bool canJump; // = true;
     [SerializeField] private float maxJumpHeight;
     [SerializeField] private float maxJumpTime;
-    private float timeToApex => maxJumpTime / 2f;
-    private float initialJumpVelocity => 2 * maxJumpHeight / timeToApex;
+    private float timeToApex;
+    private float initialJumpVelocity;
 
-    [SerializeField] private bool canDash = true;
+    [SerializeField] public bool canDash = true;
     [SerializeField] private bool isDashing;
     [SerializeField] private float dashCooldown;
     private float currentDashCooldown;
     [SerializeField] private float dashStrength;
 
-    [SerializeField] private float speedMultiplyer = 6f;
-    [SerializeField] private float rotationFactorPerFrame = 0.5f;
+    [SerializeField] private float speedMultiplyer; // = 6f;
+    [SerializeField] private float rotationFactorPerFrame; // = 0.5f;
 
-    [SerializeField] private float groundedGravityConstant = -0.05f;
-    [SerializeField] private float gravityConstant; //gravityConstant = -2 * maxJumpHeight / Mathf.Pow(timeToApex, 2);
+    [SerializeField] private float groundedGravityConstant; // = -0.05f;
+    [SerializeField] private float gravityConstant; // = -2 * maxJumpHeight / Mathf.Pow(timeToApex, 2);
     [SerializeField] private float yVector;
+
+    private Vector3 playerInitPos;
 
     void Start()
     {
+        timeToApex = maxJumpTime / 2f;
+        initialJumpVelocity = 2 * maxJumpHeight / timeToApex;
         currentDashCooldown = dashCooldown;
+        playerInitPos = transform.position;
     }
 
     void Update()
     {
+        startTimerWhenStartMoving();
         updatePlayerStates();
         move();
         turn();
@@ -43,6 +49,14 @@ public class playerController : MonoBehaviour
         dash();
         updateAnimation();
         updateDashCooldown();
+    }
+
+    private void startTimerWhenStartMoving()
+    {
+        if(inputReader.moveVector != Vector2.zero)
+        {   
+            ui.startTimer();
+        }
     }
 
     private void move()
@@ -166,24 +180,22 @@ public class playerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        //kena jumpApple
-        if(other.tag == "jumpRefresh")
-        {
-            canJump = true;
-            Destroy(other.gameObject);
-        }
-
-        //kena dashApple
-        if(other.tag == "dashRefresh")
-        {
-            canDash = true;
-            Destroy(other.gameObject);
-        }
 
         //kena collider buat trigger ending cutscene
         if(other.tag == "endingCollider")
         {
+            ui.setBestTime();
+            ui.resetTimer();
             cutsceneManager.triggerEndingCutscene();
+            teleportTo(playerInitPos);
+            
         }
+    }
+
+    private void teleportTo(Vector3 pos)
+    {
+        characterController.enabled = false;
+        transform.position = pos;
+        characterController.enabled = true;
     }
 }

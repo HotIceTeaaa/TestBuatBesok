@@ -29,7 +29,7 @@ public class audioManager : MonoBehaviour
     public void playBGMusic()
     {
         musicAudioSource.Play();
-        musicAudioSource.
+        //musicAudioSource.
     } 
 
     public void playAmbient()
