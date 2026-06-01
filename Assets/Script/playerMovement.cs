@@ -28,7 +28,10 @@ public class playerController : MonoBehaviour
     [SerializeField] private float gravityConstant; // = -2 * maxJumpHeight / Mathf.Pow(timeToApex, 2);
     [SerializeField] private float yVector;
 
+    [SerializeField] private Checkpoint[] checkpointScriptsArr;
+
     private Vector3 playerInitPos;
+    public Vector3 spawnPoint;
 
     void Start()
     {
@@ -36,6 +39,8 @@ public class playerController : MonoBehaviour
         initialJumpVelocity = 2 * maxJumpHeight / timeToApex;
         currentDashCooldown = dashCooldown;
         playerInitPos = transform.position;
+        spawnPoint = transform.position;
+        checkpointScriptsArr = FindObjectsByType<Checkpoint>();
     }
 
     void Update()
@@ -187,8 +192,9 @@ public class playerController : MonoBehaviour
             ui.setBestTime();
             ui.resetTimer();
             cutsceneManager.triggerEndingCutscene();
+            spawnPoint = playerInitPos;
+            resetAllCheckpoints();
             teleportTo(playerInitPos);
-            
         }
     }
 
@@ -197,5 +203,18 @@ public class playerController : MonoBehaviour
         characterController.enabled = false;
         transform.position = pos;
         characterController.enabled = true;
+    }
+
+    public void respawn()
+    {
+        teleportTo(spawnPoint);
+    }
+
+    private void resetAllCheckpoints()
+    {
+        for(int i = 0; i < checkpointScriptsArr.Length; i++)
+        {
+            checkpointScriptsArr[i].renableParticleSystem();
+        }
     }
 }
